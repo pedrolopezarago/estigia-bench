@@ -1,0 +1,19 @@
+{
+  "version": "v1",
+  "instructions": "BEFORE THE BASELINE SESSION: (1) replace 'system' with the EXACT system prompt the payload uses today; (2) replace the sample questions with ten real mission questions, agreed with objective 2 (question bank). While 'system' contains '<<', bench.py refuses to run S6 and S7. Any later change = new version (reference_v2.json) and the baseline must be re-measured.",
+  "approved_by": "",
+  "date": "",
+  "system": "<<PASTE THE PRODUCTION SYSTEM PROMPT HERE, VERBATIM>>",
+  "questions": [
+    "What is the overall status of the payload?",
+    "Summarise the last battery temperature reading in one sentence.",
+    "Is there any anomaly in the recent telemetry?",
+    "Which datum should be transmitted first in the next communication window?",
+    "How much energy is left for the rest of the orbit?",
+    "Briefly explain what the communications subsystem does.",
+    "What does an under-voltage warning on the board mean?",
+    "Give the status of the LoRa link in one line.",
+    "When is the next ground communication window?",
+    "Summarise the last three logged alerts."
+  ]
+}

@@ -1,0 +1,63 @@
+# estigia-bench · test plan · METHOD v1
+#
+# Any change to the method keys (everything but `backend`) changes the
+# method_hash. Two runs with a different method_hash are NOT comparable: if
+# something has to change, bump method_version and redo the baseline.
+method_version: v1
+
+backend:
+  type: ollama                  # ollama | llamacpp
+  url: http://127.0.0.1:11434   # llama-server: http://127.0.0.1:8080
+  model: null                   # Ollama tag; or pass it with --model
+
+inference:
+  num_ctx: 4096       # fixed for the WHOLE run: changing it forces Ollama to reload the model
+  num_thread: null    # null = whatever the engine decides (it is recorded)
+  temperature: 0      # deterministic decoding
+  seed: 42
+  keep_alive: 30m
+
+sampling:
+  interval_s: 0.5         # one system sample every 0.5 s
+  throttle_every_s: 2.0   # vcgencmd get_throttled every 2 s
+
+power:
+  source: pmic        # pmic (vcgencmd pmic_read_adc) | hwmon (INA219/INA226) | none
+  hwmon_path: null    # e.g. /sys/class/hwmon/hwmon3/power1_input (µW)
+  calib_a: 1.0        # P_input = calib_a · P_measured + calib_b (calibrate with a USB-C meter)
+  calib_b: 0.0
+
+protocol:
+  warmup: 1               # warmup requests discarded per point
+  reps: 5                 # valid repetitions per point
+  cooldown_delta_c: 2.0   # wait until T <= T_idle + 2 °C before each request
+  cooldown_max_s: 60
+  min_gap_s: 1.0
+
+suites:
+  - S0_system
+  - S1_idle
+  - S2_load
+  - S3_prefill
+  - S4_generation
+  - S5_matrix
+  - S6_kv_cache
+  - S7_scenario
+  - S8_soak
+  # - S9_threads      # optional: scaling with the number of threads
+
+s0: {membw_mb: 256, membw_procs: 4, storage_read: true}
+s1: {seconds_per_state: 120}
+s2: {reps: 3, cold: true}
+s3: {prompt_tokens: [16, 64, 128, 256, 512, 1024, 2048]}
+s4: {prompt_tokens: 32, output_tokens: [16, 32, 64, 128, 256]}
+s5: {prompt_tokens: [64, 256, 1024], output_tokens: [16, 64, 256], reps: 3}
+s6: {questions: 5, output_tokens: production, reps: 3}   # production = num_predict of the 1st s7 variant
+s7:
+  prompt_file: prompts/reference_v1.json
+  reps: 2
+  variants:
+    - {name: production, num_predict: 300}   # put the REAL num_predict of the payload here
+    # - {name: capped_30, num_predict: 30}   # preview of the phase 1 lever
+s8: {seconds: 600, prompt_tokens: 64, output_tokens: 128}
+s9: {num_thread: [1, 2, 3, 4], prompt_tokens: 128, output_tokens: 64, reps: 3}

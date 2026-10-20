@@ -1,0 +1,87 @@
+# estigia-bench · QUICK plan (~10 min on the CM5). Only to check that everything works.
+# Its figures do NOT go into the comparative report (different method_version).
+method_version: v1-quick
+backend:
+  type: ollama
+  url: http://127.0.0.1:11434
+  model: null
+inference:
+  num_ctx: 4096
+  num_thread: null
+  temperature: 0
+  seed: 42
+  keep_alive: 30m
+sampling:
+  interval_s: 0.5
+  throttle_every_s: 2.0
+power:
+  source: pmic
+  hwmon_path: null
+  calib_a: 1.0
+  calib_b: 0.0
+protocol:
+  warmup: 1
+  reps: 2
+  cooldown_delta_c: 2.0
+  cooldown_max_s: 10
+  min_gap_s: 0.2
+suites:
+- S0_system
+- S1_idle
+- S2_load
+- S3_prefill
+- S4_generation
+- S5_matrix
+- S6_kv_cache
+- S7_scenario
+- S8_soak
+s0:
+  membw_mb: 128
+  membw_procs: 4
+  storage_read: false
+s1:
+  seconds_per_state: 10
+s2:
+  reps: 1
+  cold: false
+s3:
+  prompt_tokens:
+  - 16
+  - 128
+  - 512
+s4:
+  prompt_tokens: 32
+  output_tokens:
+  - 16
+  - 64
+s5:
+  prompt_tokens:
+  - 64
+  - 256
+  output_tokens:
+  - 16
+  - 64
+  reps: 1
+s6:
+  questions: 2
+  output_tokens: production
+  reps: 1
+s7:
+  prompt_file: prompts/reference_v1.json
+  reps: 1
+  variants:
+  - name: production
+    num_predict: 64
+s8:
+  seconds: 30
+  prompt_tokens: 32
+  output_tokens: 32
+s9:
+  num_thread:
+  - 1
+  - 2
+  - 3
+  - 4
+  prompt_tokens: 128
+  output_tokens: 64
+  reps: 3
