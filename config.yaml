@@ -12,7 +12,7 @@ backend:
 
 inference:
   num_ctx: 4096       # fixed for the WHOLE run: changing it forces Ollama to reload the model
-  num_thread: null    # null = whatever the engine decides (it is recorded)
+  num_thread: 3       # flight requirement: 1 core stays free for the rest of the satellite
   temperature: 0      # deterministic decoding
   seed: 42
   keep_alive: 30m
@@ -44,7 +44,7 @@ suites:
   - S6_kv_cache
   - S7_scenario
   - S8_soak
-  # - S9_threads      # optional: scaling with the number of threads
+  - S9_threads        # cost of 3 vs 4 threads (flight requirement)
 
 s0: {membw_mb: 256, membw_procs: 4, storage_read: true}
 s1: {seconds_per_state: 120}
@@ -57,7 +57,7 @@ s7:
   prompt_file: prompts/reference_v1.json
   reps: 2
   variants:
-    - {name: production, num_predict: 300}   # put the REAL num_predict of the payload here
+    - {name: production, num_predict: 300}   # payload sets NO num_predict (unlimited); 300 = safety cap
     # - {name: capped_30, num_predict: 30}   # preview of the phase 1 lever
 s8: {seconds: 600, prompt_tokens: 64, output_tokens: 128}
 s9: {num_thread: [1, 2, 3, 4], prompt_tokens: 128, output_tokens: 64, reps: 3}
