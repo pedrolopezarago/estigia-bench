@@ -7,7 +7,7 @@ backend:
   model: null
 inference:
   num_ctx: 4096
-  num_thread: null
+  num_thread: 3
   temperature: 0
   seed: 42
   keep_alive: 30m
